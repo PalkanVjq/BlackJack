@@ -10,13 +10,13 @@ c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(550): warning C4018: <: не�
 c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(556): warning C4018: <: несоответствие типов со знаком и без знака
 c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(588): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
 c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(619): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(650): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(670): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(674): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(678): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(683): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(635): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(655): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(659): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(663): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(668): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(676): warning C4018: <: несоответствие типов со знаком и без знака
 c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(690): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(695): warning C4018: <: несоответствие типов со знаком и без знака
 c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\type_traits(16707566): warning C4244: аргумент: преобразование "_Ty" в "int", возможна потеря данных
           with
           [

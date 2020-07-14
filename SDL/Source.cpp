@@ -593,7 +593,7 @@ int main(int argc, char* argv[])
 
 	
 	int xMouse, yMouse;
-	
+	int tooz = 0;
 
 	SDL_SetRenderDrawColor(render,0,255,0,255);
 	
@@ -630,22 +630,7 @@ int main(int argc, char* argv[])
 			case SDL_KEYDOWN:
 				switch (e.key.keysym.sym) 
 				{
-				case  SDLK_1:
-					SDL_DestroyTexture(TexAllCard);
-					TexAllCard = LoadImage("Cards/pack2.bmp");
-					break;
-				case  SDLK_2:
-					SDL_DestroyTexture(TexAllCard);
-					TexAllCard = LoadImage("Cards/pack1.bmp");
-					break;
-				case  SDLK_3:
-					SDL_DestroyTexture(TexBackCard);
-					TexBackCard = LoadImage("Cards/back1.bmp");
-					break;
-				case  SDLK_4:
-					SDL_DestroyTexture(TexBackCard);
-					TexBackCard = LoadImage("Cards/back2.bmp");
-					break;
+				
 				case  SDLK_5:
 					for (int i = 0; i < CardsVector.size(); i++)
 						CardsVector[i]->visible = !CardsVector[i]->visible;
@@ -686,17 +671,33 @@ int main(int argc, char* argv[])
 		}
 		SDL_RenderPresent(render);
 
+		tooz = 0; //количество тузов
 		Dcoins = 0;
-		for (int i = 0; i < DealerCardsVector.size(); i++)
+		for (int i = 0; i < DealerCardsVector.size(); i++) // подсчет очков дилера
 		{
+			if (DealerCardsVector[i]->value == 11)
+				tooz++;
 			Dcoins += DealerCardsVector[i]->value;
 		}
-		Plcoins = 0;
-		for (int i = 0; i < PlayerCardsVector.size(); i++)
+		for (int i = 0; i < tooz; i++)
 		{
-			Plcoins += PlayerCardsVector[i]->value;
+			if (Dcoins > 21)
+				Dcoins -= 10;
 		}
 
+		tooz = 0; //количество тузов
+		Plcoins = 0;
+		for (int i = 0; i < PlayerCardsVector.size(); i++) // подсчет очков игрока
+		{
+			if (PlayerCardsVector[i]->value == 11)
+				tooz++;
+			Plcoins += PlayerCardsVector[i]->value;
+		}
+		for (int i = 0; i < tooz; i++)
+		{
+			if (Plcoins > 21)
+				Plcoins -= 10;
+		}
 		
 
 		if (Plcoins > 21 && PlayerCardsEnd())

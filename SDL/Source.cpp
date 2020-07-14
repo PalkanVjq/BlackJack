@@ -11,14 +11,18 @@
 using namespace std;
 
 
-const int SCREEN_WIDTH = 1280;
+const int SCREEN_WIDTH = 700;
 const int SCREEN_HEIGHT = 640;
 
 int WC, HC; //ширина и высота текстуры 1 карты
 int size =2; 
 int speedC = 80; //скорость движения карт
-int Plcoins = 0;
-//bool PlayerActive = true; //Ход игрока
+int Dcoins = 0; //кол-во очков дилера
+int Plcoins = 0; //кол-во очков игрока
+	// Флаг выхода
+bool quit = false;
+
+bool DealerActive = false; //Ход игрока
 
 thread *th = nullptr;
 
@@ -29,7 +33,8 @@ SDL_Renderer *render = nullptr;
 SDL_Texture *TexAllCard = nullptr ;
 SDL_Texture *TexBackCard = nullptr;
 SDL_Texture *Background = nullptr;
-
+bool PlayerCardsEnd();
+bool DealerCardsEnd();
 SDL_Texture *LoadImage(string file);
 void StartGive();
 void TextureCutAndRender(SDL_Renderer *rend, SDL_Texture *tex, int x, int y, SDL_Rect temp);
@@ -77,10 +82,106 @@ public:
 	Buttons() {}
 	virtual ~Buttons() {}
 
-	virtual void Click(int x, int y) = 0;
+	virtual bool Click(int x, int y) = 0;
 	virtual void Render(SDL_Renderer *rend) = 0;
 };
 
+
+class SkinTitButtons : public Buttons
+{
+private:
+	bool pack1 = true;
+public:
+	
+	SkinTitButtons()
+	{
+		colrgb[0] = 255;
+		colrgb[1] = 203;
+		colrgb[2] = 219;
+
+		visible = true;
+		rect.h = 30;
+		rect.w = 80;
+		rect.x = SCREEN_WIDTH / 2 - rect.w / 2 - 45;
+		rect.y = SCREEN_HEIGHT / 2 ;
+	}
+	virtual ~SkinTitButtons() {}
+
+	virtual bool Click(int x, int y) override
+	{
+		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h)
+		{
+			if (pack1)
+			TexAllCard = LoadImage("Cards/pack2.bmp");
+			else
+			TexAllCard = LoadImage("Cards/pack1.bmp");
+
+			pack1 = !pack1;
+			return true;
+		}
+		else return false;
+	}
+	virtual void Render(SDL_Renderer *rend) override
+	{
+		if (!visible)
+			return;
+		SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
+		SDL_RenderFillRect(rend, &rect);
+
+		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
+		SDL_RenderDrawRect(rend, &rect);
+
+	}
+};
+SkinTitButtons *ScinTitButt = new SkinTitButtons();
+class SkinBackButtons : public Buttons
+{
+
+private:
+	bool back1 = true;
+public:
+
+	SkinBackButtons()
+	{
+		colrgb[0] = 255;
+		colrgb[1] = 203;
+		colrgb[2] = 219;
+
+		visible = true;
+		rect.h = 30;
+		rect.w = 80;
+		rect.x = SCREEN_WIDTH / 2 - rect.w / 2 + 45;
+		rect.y = SCREEN_HEIGHT / 2 ;
+	}
+	virtual ~SkinBackButtons() {}
+
+	virtual bool Click(int x, int y) override
+	{
+		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h)
+		{
+			if (back1)
+				TexBackCard = LoadImage("Cards/back2.bmp");
+			else
+				TexBackCard = LoadImage("Cards/back1.bmp");
+
+			back1 = !back1;
+			return true;
+		}
+		else return false;
+	}
+	virtual void Render(SDL_Renderer *rend) override
+	{
+		if (!visible)
+			return;
+		SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
+		SDL_RenderFillRect(rend, &rect);
+
+		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
+		SDL_RenderDrawRect(rend, &rect);
+
+	}
+};
+SkinBackButtons *ScinBackButt = new SkinBackButtons();
 
 class HitButtons : public Buttons
 {
@@ -101,23 +202,35 @@ public:
 	}
 	virtual ~HitButtons() {}
 
-	virtual void Click(int x, int y) override
+	virtual bool Click(int x, int y) override
 	{
-		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h && active)
+		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h && active && PlayerCardsEnd() && DealerCardsEnd())
 		{
 			GiveCard("Player", true);
+			return true;
 		}
-		else return;
+		else return false;
 	}
 	virtual void Render(SDL_Renderer *rend) override
 	{
 		if (!visible)
 			return;
-		SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
-		SDL_RenderFillRect(rend, &rect);
+		if (active)
+		{
+			SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
+			SDL_RenderFillRect(rend, &rect);
 
-		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
-		SDL_RenderDrawRect(rend, &rect);
+			SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
+			SDL_RenderDrawRect(rend, &rect);
+		}
+		else
+		{
+			SDL_SetRenderDrawColor(render, 100, 100, 100, 0);
+			SDL_RenderFillRect(rend, &rect);
+
+			SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
+			SDL_RenderDrawRect(rend, &rect);
+		}
 
 	}
 };
@@ -141,18 +254,18 @@ public:
 	}
 	virtual ~StandButtons() {}
 
-	virtual void Click(int x, int y) override
+	virtual bool Click(int x, int y) override
 	{
-		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h && visible)
+		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h && visible && PlayerCardsEnd() &&DealerCardsEnd())
 		{
 			
-			hitbut->colrgb[0] = 100;
-			hitbut->colrgb[1] = 100;
-			hitbut->colrgb[2] = 100;
-			hitbut->active = false;
 			
+			hitbut->active = false;
+			DealerCardsVector[DealerCardsVector.size() - 1]->visible = true;
+			DealerActive = true;
+			return true;
 		}
-		else return;
+		else return false;
 		
 	}
 	virtual void Render(SDL_Renderer *rend) override
@@ -167,9 +280,46 @@ public:
 		SDL_RenderDrawRect(rend, &rect);
 	}
 };
-
 StandButtons *standbut = new StandButtons();
 
+class QuitButtons : public Buttons
+{
+public:
+	QuitButtons()
+	{
+		colrgb[0] = 255;
+		colrgb[1] = 255;
+		colrgb[2] = 255;
+		visible = true;
+		rect.h = 30;
+		rect.w = 80;
+		rect.x = SCREEN_WIDTH / 2 - rect.w / 2;
+		rect.y = SCREEN_HEIGHT / 2 - rect.h + 140/2;
+	}
+	virtual ~QuitButtons() {}
+
+	virtual bool Click(int x, int y) override
+	{
+		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h && visible)
+		{
+			quit = true;
+			return true;
+		}
+		else return false;;
+	}
+	virtual void Render(SDL_Renderer *rend) override
+	{
+		if (!visible)
+			return;
+		SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
+		SDL_RenderFillRect(rend, &rect);
+
+		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
+		SDL_RenderDrawRect(rend, &rect);
+
+	}
+};
+QuitButtons *QuitButt = new QuitButtons();
 class PlayButtons : public Buttons
 {
 public:
@@ -182,11 +332,11 @@ public:
 		rect.h = 60;
 		rect.w = 100;
 		rect.x = SCREEN_WIDTH / 2 - rect.w / 2;
-		rect.y = SCREEN_HEIGHT / 2 - rect.h / 2;
+		rect.y = SCREEN_HEIGHT / 2 - 140 / 2;
 	}
 	virtual ~PlayButtons() {}
 
-	virtual void Click(int x, int y) override
+	virtual bool Click(int x, int y) override
 	{
 		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h && visible)
 		{
@@ -194,6 +344,13 @@ public:
 			hitbut->visible = true;
 			hitbut->active = true;
 			standbut->visible = true;
+			QuitButt->visible = false;
+
+			ScinTitButt->rect.x = SCREEN_WIDTH - ScinTitButt->rect.w;
+			ScinTitButt->rect.y = (SCREEN_HEIGHT/2) - ScinTitButt->rect.h -5;
+
+			ScinBackButt->rect.x = SCREEN_WIDTH - ScinBackButt->rect.w;
+			ScinBackButt->rect.y = (SCREEN_HEIGHT /2)  + 5;
 
 			for (int i = 0; i < 52; i++)
 			{
@@ -201,8 +358,9 @@ public:
 				CardsVector[i]->visible = false;
 			}
 			th = new thread(StartGive);
+			return true;
 		}
-		else return;
+		else return false;;
 	}
 	virtual void Render(SDL_Renderer *rend) override
 	{
@@ -218,7 +376,7 @@ public:
 };
 PlayButtons *playbut = new PlayButtons();
 
-vector<Buttons*> ButtonsVector = { playbut, hitbut ,standbut };;
+vector<Buttons*> ButtonsVector = { playbut, hitbut ,standbut, ScinTitButt, ScinBackButt,QuitButt };
 
 
 void GoToCast(BlackJack *Temp, int xnew, int ynew)
@@ -237,9 +395,35 @@ void GoToCast(BlackJack *Temp, int xnew, int ynew)
 	
 }
 
-void StartGive()
+void NewGame() //Начало новой игры
 {
-	this_thread::sleep_for(chrono::milliseconds(2000));
+	int sizeboof=0;
+	sizeboof = DealerCardsVector.size();
+	for (int i = 0; i < sizeboof; i++) //добавление карт дилера назад в колоду
+		CardsVector.push_back(DealerCardsVector[i]);
+	for (int i = 0; i < sizeboof; i++)//удаление карт дилера
+		DealerCardsVector.pop_back();
+
+	sizeboof = PlayerCardsVector.size();
+	for (int i = 0; i < sizeboof; i++) //добавление карт игрока назад в колоду
+		CardsVector.push_back(PlayerCardsVector[i]);
+	for (int i = 0; i < sizeboof; i++)//удаление карт игрока
+		PlayerCardsVector.pop_back();
+
+	for (int i = 0; i < CardsVector.size(); i++) //Сложить все карты в колоду
+	{
+		th = new thread(GoToCast, CardsVector[i], i / 2.4, 230 + i / 4);
+		CardsVector[i]->visible = false;
+	}
+	th = new thread(StartGive); // Выдача 2 карт игроку и дилеру в начале игры
+
+	hitbut->active = true;
+	DealerActive = false;
+}
+
+void StartGive() // Выдача 2 карт игроку и дилеру в начале игры
+{
+	this_thread::sleep_for(chrono::milliseconds(1000));
 		GiveCard("Dealer", true);
 		GiveCard("Player", true);
 		GiveCard("Dealer", false);
@@ -287,7 +471,26 @@ void GiveCard(string name, bool visib )
 
 	
 }
+bool PlayerCardsEnd()
+{
+	if (PlayerCardsVector.size() == 0)
+		return false;
 
+	if (PlayerCardsVector[PlayerCardsVector.size() - 1]->x == (SCREEN_WIDTH / 2 - PlayerCardsVector[PlayerCardsVector.size() - 1]->Rcard.w / 2) + 30 * PlayerCardsVector.size() &&
+		PlayerCardsVector[PlayerCardsVector.size() - 1]->y == 450)
+		return true;
+	return false;
+}
+bool DealerCardsEnd()
+{
+	if (DealerCardsVector.size() == 0)
+		return false;
+
+	if ((DealerCardsVector[DealerCardsVector.size() - 1]->x == (SCREEN_WIDTH / 2 - DealerCardsVector[DealerCardsVector.size() - 1]->Rcard.w / 2) + 30 * DealerCardsVector.size()) &&
+		(DealerCardsVector[DealerCardsVector.size() - 1]->y == 10))
+		return true;
+	return false;
+}
 void Init()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -390,8 +593,7 @@ int main(int argc, char* argv[])
 
 	SDL_Event e;
 
-	// Флаг выхода
-	bool quit = false;
+
 	
 	int xMouse, yMouse;
 	
@@ -419,7 +621,8 @@ int main(int argc, char* argv[])
 				
 				for (int i = 0; i < ButtonsVector.size(); i++)
 				{
-					ButtonsVector[i]->Click(xMouse, yMouse);
+					if (ButtonsVector[i]->Click(xMouse, yMouse))
+						break;
 					
 				}
 			}
@@ -450,7 +653,10 @@ int main(int argc, char* argv[])
 					for (int i = 0; i < CardsVector.size(); i++)
 						CardsVector[i]->visible = !CardsVector[i]->visible;
 					break;
-
+					
+				case  SDLK_6:
+					
+					break;
 				}
 					break;	
 			default:
@@ -462,13 +668,6 @@ int main(int argc, char* argv[])
 		// Отображение сцены
 		SDL_RenderClear(render);
 		SDL_RenderCopy(render, Background,NULL,NULL);
-		
-		Plcoins = 0;
-
-		for (int i = 0; i < PlayerCardsVector.size(); i++)
-		{
-			Plcoins += PlayerCardsVector[i]->value;
-		}
 		
 
 		for (int i = 0; i < CardsVector.size(); i++)
@@ -488,11 +687,60 @@ int main(int argc, char* argv[])
 		{
 			ButtonsVector[i]->Render(render);
 		}
+		SDL_RenderPresent(render);
+
+		Dcoins = 0;
+		for (int i = 0; i < DealerCardsVector.size(); i++)
+		{
+			Dcoins += DealerCardsVector[i]->value;
+		}
+		Plcoins = 0;
+		for (int i = 0; i < PlayerCardsVector.size(); i++)
+		{
+			Plcoins += PlayerCardsVector[i]->value;
+		}
+
+		
+
+		if (Plcoins > 21 && PlayerCardsEnd())
+		{
+			SDL_ShowSimpleMessageBox(NULL, "Result", "DEALER WINS\nYOU>21", window);
+			NewGame();
+			continue;
+		}
+
+		if (DealerActive)
+		if (DealerCardsEnd() && Dcoins < 22 && Dcoins < Plcoins)
+		{
+			GiveCard("Dealer", true);
+		}
+		else {
+			if (Dcoins == Plcoins && DealerCardsEnd())
+			{
+				SDL_ShowSimpleMessageBox(NULL, "Result", " A TIE!", window);
+				NewGame();
+				continue;
+			}
+			if ((Dcoins > 21 || (Dcoins < Plcoins && Plcoins <= 21 && DealerActive)) && DealerCardsEnd())
+			{
+				SDL_ShowSimpleMessageBox(NULL, "Result", "YOU WIN!", window);
+				NewGame();
+				continue;
+			}
+			if ((Plcoins > 21 || (Plcoins < Dcoins && Dcoins <= 21 && DealerActive))&& DealerCardsEnd())
+			{
+				SDL_ShowSimpleMessageBox(NULL, "Result", "DEALER WINS", window);
+				NewGame();
+				continue;
+			}
+		}
+
+		
 
 		//SDL_RenderCopy(render, TexAllCard, NULL, NULL);
 
-		SDL_RenderPresent(render);
-		SDL_Delay(10);
+		
+		//SDL_Delay(10);
 	}
 	
 	

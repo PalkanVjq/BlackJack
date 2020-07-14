@@ -1,20 +1,22 @@
 ﻿  Source.cpp
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(226): warning C4244: инициализация: преобразование "double" в "float", возможна потеря данных
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(230): warning C4244: =: преобразование "double" в "float", возможна потеря данных
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(231): warning C4244: +=: преобразование "double" в "int", возможна потеря данных
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(232): warning C4244: +=: преобразование "double" в "int", возможна потеря данных
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(251): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(348): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(350): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(356): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(388): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(420): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(450): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(468): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(474): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(478): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(482): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(487): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(384): warning C4244: инициализация: преобразование "double" в "float", возможна потеря данных
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(388): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(389): warning C4244: +=: преобразование "double" в "int", возможна потеря данных
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(390): warning C4244: +=: преобразование "double" в "int", возможна потеря данных
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(413): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(435): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(551): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(553): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(559): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(591): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(622): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(653): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(673): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(677): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(681): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(686): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(693): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(698): warning C4018: <: несоответствие типов со знаком и без знака
 c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\type_traits(16707566): warning C4244: аргумент: преобразование "_Ty" в "int", возможна потеря данных
           with
           [
@@ -58,7 +60,7 @@ c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.1
               _Ty=std::tuple<void (__cdecl *)(BlackJack *,int,int),BlackJack *,double,int>,
               _Target=std::unique_ptr<std::tuple<void (__cdecl *)(BlackJack *,int,int),BlackJack *,double,int>,std::default_delete<std::tuple<void (__cdecl *)(BlackJack *,int,int),BlackJack *,double,int>>>
           ]
-  c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(200): note: выполняется компиляция ссылки на экземпляр шаблон функции "std::thread::thread<void(__cdecl &)(BlackJack *,int,int),_Ty&,double,int,void>(_Fn,_Ty &,double &&,int &&)"
+  c:\users\palkanvjq\source\repos\sdl\sdl\source.cpp(357): note: выполняется компиляция ссылки на экземпляр шаблон функции "std::thread::thread<void(__cdecl &)(BlackJack *,int,int),_Ty&,double,int,void>(_Fn,_Ty &,double &&,int &&)"
           with
           [
               _Ty=BlackJack *,

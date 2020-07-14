@@ -33,6 +33,13 @@ SDL_Renderer *render = nullptr;
 SDL_Texture *TexAllCard = nullptr ;
 SDL_Texture *TexBackCard = nullptr;
 SDL_Texture *Background = nullptr;
+SDL_Texture *PlayBt = nullptr;
+SDL_Texture *QuitBt = nullptr;
+SDL_Texture *HitBt = nullptr;
+SDL_Texture *StandBt = nullptr;
+SDL_Texture *ChangeSkinBt = nullptr;
+
+
 bool PlayerCardsEnd();
 bool DealerCardsEnd();
 SDL_Texture *LoadImage(string file);
@@ -123,13 +130,8 @@ public:
 	}
 	virtual void Render(SDL_Renderer *rend) override
 	{
-		if (!visible)
-			return;
-		SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
-		SDL_RenderFillRect(rend, &rect);
-
-		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
-		SDL_RenderDrawRect(rend, &rect);
+		if (visible)
+			SDL_RenderCopy(rend, ChangeSkinBt, NULL, &rect);
 
 	}
 };
@@ -171,13 +173,8 @@ public:
 	}
 	virtual void Render(SDL_Renderer *rend) override
 	{
-		if (!visible)
-			return;
-		SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
-		SDL_RenderFillRect(rend, &rect);
-
-		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
-		SDL_RenderDrawRect(rend, &rect);
+		if (visible)
+			SDL_RenderCopy(rend, ChangeSkinBt, NULL, &rect);
 
 	}
 };
@@ -217,11 +214,7 @@ public:
 			return;
 		if (active)
 		{
-			SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
-			SDL_RenderFillRect(rend, &rect);
-
-			SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
-			SDL_RenderDrawRect(rend, &rect);
+				SDL_RenderCopy(rend, HitBt, NULL, &rect);
 		}
 		else
 		{
@@ -271,13 +264,10 @@ public:
 	virtual void Render(SDL_Renderer *rend) override
 	{
 		
-		if (!visible)
-			return;
-		SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
-		SDL_RenderFillRect(rend, &rect);
-
-		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
-		SDL_RenderDrawRect(rend, &rect);
+		if (visible)
+			SDL_RenderCopy(rend, StandBt, NULL, &rect);
+	
+		
 	}
 };
 StandButtons *standbut = new StandButtons();
@@ -309,13 +299,8 @@ public:
 	}
 	virtual void Render(SDL_Renderer *rend) override
 	{
-		if (!visible)
-			return;
-		SDL_SetRenderDrawColor(render, colrgb[0], colrgb[1], colrgb[2], 0);
-		SDL_RenderFillRect(rend, &rect);
-
-		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
-		SDL_RenderDrawRect(rend, &rect);
+		if (visible)
+			SDL_RenderCopy(rend, QuitBt, NULL, &rect);
 
 	}
 };
@@ -344,13 +329,16 @@ public:
 			hitbut->visible = true;
 			hitbut->active = true;
 			standbut->visible = true;
-			QuitButt->visible = false;
+			
 
 			ScinTitButt->rect.x = SCREEN_WIDTH - ScinTitButt->rect.w;
-			ScinTitButt->rect.y = (SCREEN_HEIGHT/2) - ScinTitButt->rect.h -5;
+			ScinTitButt->rect.y = (SCREEN_HEIGHT/2) - 55;
 
 			ScinBackButt->rect.x = SCREEN_WIDTH - ScinBackButt->rect.w;
-			ScinBackButt->rect.y = (SCREEN_HEIGHT /2)  + 5;
+			ScinBackButt->rect.y = (SCREEN_HEIGHT /2)  - ScinBackButt->rect.h/2;
+
+			QuitButt->rect.x = SCREEN_WIDTH - QuitButt->rect.w;
+			QuitButt->rect.y = (SCREEN_HEIGHT / 2) - QuitButt->rect.h/2  + 40;
 
 			for (int i = 0; i < 52; i++)
 			{
@@ -364,13 +352,16 @@ public:
 	}
 	virtual void Render(SDL_Renderer *rend) override
 	{
-		if (!visible)
+		if (visible)
+			SDL_RenderCopy(rend, PlayBt, NULL, &rect);
+
+		/*if (!visible)
 			return;
 		SDL_SetRenderDrawColor(render,colrgb[0], colrgb[1], colrgb[2],0 );
 		SDL_RenderFillRect(rend, &rect);
 
 		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
-		SDL_RenderDrawRect(rend, &rect);
+		SDL_RenderDrawRect(rend, &rect);*/
 		
 	}
 };
@@ -502,6 +493,12 @@ void Init()
 	TexAllCard = LoadImage("Cards/pack1.bmp");
 	TexBackCard = LoadImage("Cards/back1.bmp");
 	Background = LoadImage("Cards/background.bmp");
+
+	PlayBt = LoadImage("Cards/PlayBt.bmp");
+	QuitBt = LoadImage("Cards/Quit.bmp");
+	HitBt = LoadImage("Cards/HitBt.bmp");
+	StandBt = LoadImage("Cards/StandBt.bmp");
+	ChangeSkinBt = LoadImage("Cards/ChangeSkinBt.bmp");
 
 	SDL_QueryTexture(TexAllCard,NULL,NULL,&WC,&HC);
 	WC /= 13;
@@ -740,7 +737,7 @@ int main(int argc, char* argv[])
 		//SDL_RenderCopy(render, TexAllCard, NULL, NULL);
 
 		
-		//SDL_Delay(10);
+		SDL_Delay(10);
 	}
 	
 	

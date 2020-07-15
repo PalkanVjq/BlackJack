@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 
+
 using namespace std;
 
 
@@ -58,7 +59,11 @@ public:
 	int visible;
 
 	BlackJack(){}
-	~BlackJack(){}
+	~BlackJack(){
+		SDL_DestroyTexture(TexAllCard);
+		SDL_DestroyTexture(TexBackCard);
+		
+	}
 
 	void Render(SDL_Renderer *rend)
 	{
@@ -88,7 +93,9 @@ public:
 	SDL_Rect rect;
 	bool visible;
 	Buttons() {}
-	virtual ~Buttons() {}
+	virtual ~Buttons() {
+		
+	}
 
 	virtual bool Click(int x, int y) = 0;
 	virtual void Render(SDL_Renderer *rend) = 0;
@@ -108,7 +115,10 @@ public:
 		rect.x = SCREEN_WIDTH / 2 - rect.w / 2 - 45;
 		rect.y = SCREEN_HEIGHT / 2 ;
 	}
-	virtual ~SkinTitButtons() {}
+	virtual ~SkinTitButtons() {
+		SDL_DestroyTexture(ChangeSkinBt);
+	
+	}
 
 	virtual bool Click(int x, int y) override
 	{
@@ -151,7 +161,10 @@ public:
 		rect.x = SCREEN_WIDTH / 2 - rect.w / 2 + 45;
 		rect.y = SCREEN_HEIGHT / 2 ;
 	}
-	virtual ~SkinBackButtons() {}
+	virtual ~SkinBackButtons() {
+		SDL_DestroyTexture(ChangeSkinBt);
+		
+	}
 
 	virtual bool Click(int x, int y) override
 	{
@@ -191,7 +204,10 @@ public:
 		rect.x = SCREEN_WIDTH / 2 - rect.w / 2 - 60;
 		rect.y = SCREEN_HEIGHT / 2 - rect.h / 2;
 	}
-	virtual ~HitButtons() {}
+	virtual ~HitButtons() {
+		SDL_DestroyTexture(HitBt);
+		
+	}
 
 	virtual bool Click(int x, int y) override
 	{
@@ -236,7 +252,11 @@ public:
 		rect.x = SCREEN_WIDTH / 2 - rect.w / 2 + 60;
 		rect.y = SCREEN_HEIGHT / 2 - rect.h / 2;
 	}
-	virtual ~StandButtons() {}
+	virtual ~StandButtons() {
+
+		SDL_DestroyTexture(StandBt);
+
+	}
 
 	virtual bool Click(int x, int y) override
 	{
@@ -275,7 +295,10 @@ public:
 		rect.x = SCREEN_WIDTH / 2 - rect.w / 2;
 		rect.y = SCREEN_HEIGHT / 2 - rect.h + 140/2;
 	}
-	virtual ~QuitButtons() {}
+	virtual ~QuitButtons() {
+		SDL_DestroyTexture(QuitBt);
+
+	}
 
 	virtual bool Click(int x, int y) override
 	{
@@ -309,7 +332,9 @@ public:
 		rect.y = (SCREEN_HEIGHT / 2) - rect.h / 2 + 40;
 
 	}
-	virtual ~MenuButtons() {}
+	virtual ~MenuButtons() {
+		SDL_DestroyTexture(MenuBt);
+	}
 
 	virtual bool Click(int x, int y) override
 	{
@@ -368,7 +393,10 @@ public:
 		rect.x = SCREEN_WIDTH / 2 - rect.w / 2;
 		rect.y = SCREEN_HEIGHT / 2 - 140 / 2;
 	}
-	virtual ~PlayButtons() {}
+	virtual ~PlayButtons() {
+		SDL_DestroyTexture(PlayBt);
+
+	}
 
 	virtual bool Click(int x, int y) override
 	{
@@ -406,6 +434,7 @@ public:
 	}
 };
 PlayButtons *playbut = new PlayButtons();
+
 void playbutcostil()
 {
 	this_thread::sleep_for(chrono::milliseconds(1000)); //ПРиостанавливаем поток, что бы дождаться завершение остальных потоков, которые перемещают карты
@@ -556,17 +585,21 @@ void StartGive() // Выдача 2 карт игроку и дилеру в начале игры
 
 void QuitGame()
 {
+	//Освобождение памяти
+	for (int i = 0; i < CardsVector.size(); i++)
+		delete CardsVector[i];
+	for (int i = 0; i < ButtonsVector.size(); i++)
+		delete ButtonsVector[i];
+	for (int i = 0; i < PlayerCardsVector.size(); i++)
+		delete PlayerCardsVector[i];
+	for (int i = 0; i < DealerCardsVector.size(); i++)
+		delete DealerCardsVector[i];
+
+
 	SDL_DestroyRenderer(render);
 	SDL_DestroyWindow(window);
 
-	SDL_DestroyTexture(TexAllCard);
-	SDL_DestroyTexture(TexBackCard);
-		SDL_DestroyTexture(Background);
-		SDL_DestroyTexture(PlayBt);
-		SDL_DestroyTexture(QuitBt);
-		SDL_DestroyTexture(HitBt);
-		SDL_DestroyTexture(StandBt);
-		SDL_DestroyTexture(ChangeSkinBt);
+	SDL_DestroyTexture(Background);
 	
 	SDL_Quit();
 	
@@ -801,6 +834,6 @@ int main(int argc, char* argv[])
 	
 	
 	QuitGame();
-	
+	//delete hitbut;
 	return 0;
 }

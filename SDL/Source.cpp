@@ -5,9 +5,7 @@
 #include <ctime>
 #include <thread>
 #include <chrono>
-#define RRR 30
-#define GGG 255
-#define BBB 30
+
 using namespace std;
 
 
@@ -15,7 +13,6 @@ const int SCREEN_WIDTH = 700;
 const int SCREEN_HEIGHT = 640;
 
 int WC, HC; //ширина и высота текстуры 1 карты
-int size =2; 
 int speedC = 80; //скорость движени€ карт
 int Dcoins = 0; //кол-во очков дилера
 int Plcoins = 0; //кол-во очков игрока
@@ -35,17 +32,21 @@ SDL_Texture *TexBackCard = nullptr;
 SDL_Texture *Background = nullptr;
 SDL_Texture *PlayBt = nullptr;
 SDL_Texture *QuitBt = nullptr;
+SDL_Texture *MenuBt = nullptr;
 SDL_Texture *HitBt = nullptr;
 SDL_Texture *StandBt = nullptr;
 SDL_Texture *ChangeSkinBt = nullptr;
 
-
+void GiveAllCardsToColode();
 bool PlayerCardsEnd();
 bool DealerCardsEnd();
-SDL_Texture *LoadImage(string file);
 void StartGive();
+void playbutcostil();
+
 void TextureCutAndRender(SDL_Renderer *rend, SDL_Texture *tex, int x, int y, SDL_Rect temp);
 void GiveCard(string name, bool visib);
+SDL_Texture *LoadImage(string file);
+
 
 class BlackJack
 {
@@ -80,20 +81,18 @@ vector<BlackJack*> DealerCardsVector;
 vector<BlackJack*> PlayerCardsVector;
 void GoToCast(BlackJack *Temp, int xnew, int ynew);
 
+
 class Buttons
 {
 public:
 	SDL_Rect rect;
 	bool visible;
-	int colrgb[3];
 	Buttons() {}
 	virtual ~Buttons() {}
 
 	virtual bool Click(int x, int y) = 0;
 	virtual void Render(SDL_Renderer *rend) = 0;
 };
-
-
 class SkinTitButtons : public Buttons
 {
 private:
@@ -102,10 +101,7 @@ public:
 	
 	SkinTitButtons()
 	{
-		colrgb[0] = 255;
-		colrgb[1] = 203;
-		colrgb[2] = 219;
-
+		
 		visible = true;
 		rect.h = 30;
 		rect.w = 80;
@@ -118,6 +114,8 @@ public:
 	{
 		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h)
 		{
+			SDL_DestroyTexture(TexAllCard);
+			
 			if (pack1)
 			TexAllCard = LoadImage("Cards/pack2.bmp");
 			else
@@ -136,6 +134,7 @@ public:
 	}
 };
 SkinTitButtons *ScinTitButt = new SkinTitButtons();
+
 class SkinBackButtons : public Buttons
 {
 
@@ -145,10 +144,7 @@ public:
 
 	SkinBackButtons()
 	{
-		colrgb[0] = 255;
-		colrgb[1] = 203;
-		colrgb[2] = 219;
-
+		
 		visible = true;
 		rect.h = 30;
 		rect.w = 80;
@@ -161,6 +157,7 @@ public:
 	{
 		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h)
 		{
+			SDL_DestroyTexture(TexBackCard);
 			if (back1)
 				TexBackCard = LoadImage("Cards/back2.bmp");
 			else
@@ -187,10 +184,7 @@ public:
 	bool active = false;
 	HitButtons() 
 	{
-		colrgb[0] = 0;
-		colrgb[1] = 255;
-		colrgb[2] = 0;
-
+		
 		visible = false;
 		rect.h = 60;
 		rect.w = 100;
@@ -235,10 +229,7 @@ public:
 
 	StandButtons() 
 	{
-		colrgb[0] = 255;
-		colrgb[1] = 0;
-		colrgb[2] = 0;
-
+		
 		visible = false;
 		rect.h = 60;
 		rect.w = 100;
@@ -277,9 +268,7 @@ class QuitButtons : public Buttons
 public:
 	QuitButtons()
 	{
-		colrgb[0] = 255;
-		colrgb[1] = 255;
-		colrgb[2] = 255;
+		
 		visible = true;
 		rect.h = 30;
 		rect.w = 80;
@@ -305,14 +294,74 @@ public:
 	}
 };
 QuitButtons *QuitButt = new QuitButtons();
+
+
+class MenuButtons : public Buttons
+{
+public:
+	MenuButtons()
+	{
+
+		visible = false;
+		rect.h = 30;
+		rect.w = 80;
+		rect.x = SCREEN_WIDTH  - rect.w ;
+		rect.y = (SCREEN_HEIGHT / 2) - rect.h / 2 + 40;
+
+	}
+	virtual ~MenuButtons() {}
+
+	virtual bool Click(int x, int y) override
+	{
+		if (x > rect.x &&x< rect.x + rect.w && y>rect.y &&y < rect.y + rect.h && visible && PlayerCardsEnd() && DealerCardsEnd())
+		{
+			GiveAllCardsToColode();
+
+			//лицом вверх\вниз (рандом)
+			for (int i = 0; i < CardsVector.size(); i++)
+			{
+				if (rand() % 10 == 1)
+					CardsVector[i]->visible = false;
+				else CardsVector[i]->visible = true;
+
+			}
+
+			//размещение карт по всему окну 
+			for (int i = 0; i < CardsVector.size(); i++)
+			{
+				th = new thread(GoToCast, CardsVector[i], rand() % (SCREEN_WIDTH - CardsVector[i]->Rcard.w / 2), rand() % (SCREEN_HEIGHT - CardsVector[i]->Rcard.h / 2));
+			}
+			visible = false;
+			QuitButt->visible = true;
+			
+			ScinTitButt->rect.x = SCREEN_WIDTH / 2 - ScinTitButt->rect.w / 2 - 45;
+			ScinTitButt->rect.y = SCREEN_HEIGHT / 2;
+
+			ScinBackButt->rect.x = SCREEN_WIDTH / 2 - ScinBackButt->rect.w / 2 + 45;
+			ScinBackButt->rect.y = SCREEN_HEIGHT / 2;
+			
+			th = new thread (playbutcostil);
+			hitbut->visible = false;;
+			hitbut->active = false;;
+			standbut->visible = false;
+			
+			return true;
+		}
+		else return false;;
+	}
+	virtual void Render(SDL_Renderer *rend) override
+	{
+		if (visible)
+			SDL_RenderCopy(rend, MenuBt, NULL, &rect);
+
+	}
+};
+MenuButtons *MenuButton = new MenuButtons();
 class PlayButtons : public Buttons
 {
 public:
 	PlayButtons()
 	{
-		colrgb[0] = 255;
-		colrgb[1] = 255;
-		colrgb[2] = 0;
 		visible = true;
 		rect.h = 60;
 		rect.w = 100;
@@ -329,7 +378,8 @@ public:
 			hitbut->visible = true;
 			hitbut->active = true;
 			standbut->visible = true;
-			
+			QuitButt->visible = false;
+			MenuButton->visible = true;
 
 			ScinTitButt->rect.x = SCREEN_WIDTH - ScinTitButt->rect.w;
 			ScinTitButt->rect.y = (SCREEN_HEIGHT/2) - 55;
@@ -337,9 +387,7 @@ public:
 			ScinBackButt->rect.x = SCREEN_WIDTH - ScinBackButt->rect.w;
 			ScinBackButt->rect.y = (SCREEN_HEIGHT /2)  - ScinBackButt->rect.h/2;
 
-			QuitButt->rect.x = SCREEN_WIDTH - QuitButt->rect.w;
-			QuitButt->rect.y = (SCREEN_HEIGHT / 2) - QuitButt->rect.h/2  + 40;
-
+			
 			for (int i = 0; i < 52; i++)
 			{
 				th = new thread(GoToCast, CardsVector[i], i / 2.4, 230 + i / 4);
@@ -354,41 +402,39 @@ public:
 	{
 		if (visible)
 			SDL_RenderCopy(rend, PlayBt, NULL, &rect);
-
-		/*if (!visible)
-			return;
-		SDL_SetRenderDrawColor(render,colrgb[0], colrgb[1], colrgb[2],0 );
-		SDL_RenderFillRect(rend, &rect);
-
-		SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
-		SDL_RenderDrawRect(rend, &rect);*/
 		
 	}
 };
 PlayButtons *playbut = new PlayButtons();
+void playbutcostil()
+{
+	this_thread::sleep_for(chrono::milliseconds(1000)); //ѕ–иостанавливаем поток, что бы дождатьс€ завершение остальных потоков, которые перемещают карты
 
-vector<Buttons*> ButtonsVector = { playbut, hitbut ,standbut, ScinTitButt, ScinBackButt,QuitButt };
+	playbut->visible = true;
+}
+vector<Buttons*> ButtonsVector = { playbut, hitbut ,standbut, ScinTitButt, ScinBackButt,QuitButt ,MenuButton };
 
 
-void GoToCast(BlackJack *Temp, int xnew, int ynew)
+void GoToCast(BlackJack *Temp, int xnew, int ynew) //Ёта функци€ вызываетс€ отдельным потоком, что бы работала анимаци€ движени€ карты
 {
 	float distanse = sqrt(((xnew - Temp->x)*(xnew - Temp->x)) + ((ynew - Temp->y)*(ynew - Temp->y)));
 
+	//ѕлавное перемещение карты в указанную точку
 	while (distanse > 10)
 	{
 		distanse = sqrt(((xnew - Temp->x)*(xnew - Temp->x)) + ((ynew - Temp->y)*(ynew - Temp->y)));
 		Temp->x += 0.1 * speedC * (xnew - Temp->x) / distanse;
 		Temp->y += 0.1 * speedC * (ynew - Temp->y) / distanse;
-		this_thread::sleep_for(chrono::milliseconds(10));
+		this_thread::sleep_for(chrono::milliseconds(10)); //ѕ–иостанавливаем поток, что бы карта двигалась медленнее
 	}
 	Temp->x = xnew;
 	Temp->y = ynew;
 	
 }
 
-void NewGame() //Ќачало новой игры
+void GiveAllCardsToColode() // арты игрока и дилера перенести в колоду
 {
-	int sizeboof=0;
+	int sizeboof = 0;
 	sizeboof = DealerCardsVector.size();
 	for (int i = 0; i < sizeboof; i++) //добавление карт дилера назад в колоду
 		CardsVector.push_back(DealerCardsVector[i]);
@@ -401,7 +447,12 @@ void NewGame() //Ќачало новой игры
 	for (int i = 0; i < sizeboof; i++)//удаление карт игрока
 		PlayerCardsVector.pop_back();
 
-	for (int i = 0; i < CardsVector.size(); i++) //—ложить все карты в колоду
+}
+void NewGame() //Ќачало новой игры
+{
+	GiveAllCardsToColode();
+
+	for (int i = 0; i < CardsVector.size(); i++) //—ложить все карты в колоду (ѕомен€ть картам координаты)
 	{
 		th = new thread(GoToCast, CardsVector[i], i / 2.4, 230 + i / 4);
 		CardsVector[i]->visible = false;
@@ -412,19 +463,12 @@ void NewGame() //Ќачало новой игры
 	DealerActive = false;
 }
 
-void StartGive() // ¬ыдача 2 карт игроку и дилеру в начале игры
-{
-	this_thread::sleep_for(chrono::milliseconds(1000));
-		GiveCard("Dealer", true);
-		GiveCard("Player", true);
-		GiveCard("Dealer", false);
-		GiveCard("Player", true);
-	
-}
-void GiveCard(string name, bool visib )
+void GiveCard(string name, bool visib ) //¬ыдать карту игроку/дилеру из колоды
 {
 	srand(time(0));
-	int irand = rand() % CardsVector.size();
+
+	//Ѕерем рандомную карту с колоды и мен€ем ее местами с верхней картой в колоде
+	int irand = rand() % CardsVector.size(); 
 	BlackJack *temp = CardsVector[irand];
 	temp->visible = visib;
 	int x2boof = CardsVector[CardsVector.size() - 1]->x, y2boof = CardsVector[CardsVector.size() - 1]->y;
@@ -438,6 +482,8 @@ void GiveCard(string name, bool visib )
 	temp->x = x2boof;
 	temp->y = y2boof;
 
+
+	//ƒаем верхнюю карту колоды (рандомную) игроку или дилеру
 	if (name == "Player")
 	{
 		PlayerCardsVector.push_back(CardsVector[CardsVector.size() - 1]);
@@ -455,14 +501,11 @@ void GiveCard(string name, bool visib )
 			10);
 	}
 
-
 	CardsVector.pop_back();
 
-
-
-	
 }
-bool PlayerCardsEnd()
+
+bool PlayerCardsEnd()//ѕроверка, остановилась ли анимаци€ передвижение карт от колоды к игроку
 {
 	if (PlayerCardsVector.size() == 0)
 		return false;
@@ -472,7 +515,7 @@ bool PlayerCardsEnd()
 		return true;
 	return false;
 }
-bool DealerCardsEnd()
+bool DealerCardsEnd() //ѕроверка, остановилась ли анимаци€ передвижение карт от колоды к дилеру
 {
 	if (DealerCardsVector.size() == 0)
 		return false;
@@ -482,6 +525,52 @@ bool DealerCardsEnd()
 		return true;
 	return false;
 }
+bool AllCardsInColodaEnd() // Ќаход€тс€ ли карты из колоды в колоде (по координатам)
+{
+
+	for (int i = 0; i < CardsVector.size(); i++)
+	{
+	
+	if (CardsVector[i]->x != (int)(i / 2.4) || CardsVector[i]->y != (int)(230 + i / 4))
+		return false; 
+	}
+	return true;
+}
+void StartGive() // ¬ыдача 2 карт игроку и дилеру в начале игры
+{
+	while (true)
+	{
+ 		if (AllCardsInColodaEnd())
+		{
+			GiveCard("Dealer", true);
+			GiveCard("Player", true);
+			GiveCard("Dealer", false);
+			GiveCard("Player", true);
+			return;
+		}
+		this_thread::sleep_for(chrono::milliseconds(20)); // ждем, чтобы не нагружать компьютер
+	}
+	return;
+	
+}
+
+void QuitGame()
+{
+	SDL_DestroyRenderer(render);
+	SDL_DestroyWindow(window);
+
+	SDL_DestroyTexture(TexAllCard);
+	SDL_DestroyTexture(TexBackCard);
+		SDL_DestroyTexture(Background);
+		SDL_DestroyTexture(PlayBt);
+		SDL_DestroyTexture(QuitBt);
+		SDL_DestroyTexture(HitBt);
+		SDL_DestroyTexture(StandBt);
+		SDL_DestroyTexture(ChangeSkinBt);
+	
+	SDL_Quit();
+	
+}
 void Init()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -489,11 +578,13 @@ void Init()
 	window = SDL_CreateWindow("BlackJack", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	render = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+	
 	SDL_DestroyTexture(TexAllCard);
 	TexAllCard = LoadImage("Cards/pack1.bmp");
 	TexBackCard = LoadImage("Cards/back1.bmp");
 	Background = LoadImage("Cards/background.bmp");
 
+	MenuBt = LoadImage("Cards/MenuBt.bmp");
 	PlayBt = LoadImage("Cards/PlayBt.bmp");
 	QuitBt = LoadImage("Cards/Quit.bmp");
 	HitBt = LoadImage("Cards/HitBt.bmp");
@@ -570,7 +661,6 @@ SDL_Texture *LoadImage(string file) {
 	SDL_FreeSurface(tSurf);
 	return tText;
 }
-
 void TextureCutAndRender(SDL_Renderer *rend, SDL_Texture *tex, int x, int y, SDL_Rect temp)
 {
 	SDL_Rect rect;
@@ -586,19 +676,10 @@ int main(int argc, char* argv[])
 {
 	Init();
 	srand(time(0));
-
-
 	SDL_Event e;
 
-
-	
 	int xMouse, yMouse;
-	int tooz = 0;
-
-	SDL_SetRenderDrawColor(render,0,255,0,255);
-	
-	
-	
+	int tooz = 0; //количество тузов 
 
 	while (!quit)
 	{
@@ -610,68 +691,51 @@ int main(int argc, char* argv[])
 			case SDL_MOUSEMOTION:
 				xMouse = e.motion.x;
 				yMouse = e.motion.y;
-
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
 			{
-				
 				for (int i = 0; i < ButtonsVector.size(); i++)
 				{
 					if (ButtonsVector[i]->Click(xMouse, yMouse))
 						break;
-					
 				}
 			}
 				break;
 			case SDL_QUIT:
 				quit = true;
 				break;
-			case SDL_KEYDOWN:
-				switch (e.key.keysym.sym) 
-				{
-				
-				case  SDLK_5:
-					for (int i = 0; i < CardsVector.size(); i++)
-						CardsVector[i]->visible = !CardsVector[i]->visible;
-					break;
-					
-				case  SDLK_6:
-					
-					break;
-				}
-					break;	
+
 			default:
 				break;
 			}
-			
-			
+
 		}
 		// ќтображение сцены
 		SDL_RenderClear(render);
 		SDL_RenderCopy(render, Background,NULL,NULL);
 		
 
-		for (int i = 0; i < CardsVector.size(); i++)
+		for (int i = 0; i < CardsVector.size(); i++) //ќтображение колоды карт
 		{
 			CardsVector[i]->Render(render);
 		}
-		for (int i = 0; i < PlayerCardsVector.size(); i++)
+		for (int i = 0; i < PlayerCardsVector.size(); i++)  //ќтображение карт игрока
 		{
 			PlayerCardsVector[i]->Render(render);
 		}
-		for (int i = 0; i < DealerCardsVector.size(); i++)
+		for (int i = 0; i < DealerCardsVector.size(); i++)   //ќтображение карт дилера
 		{
 			DealerCardsVector[i]->Render(render);
 		}
 
-		for (int i = 0; i < ButtonsVector.size(); i++)
+		for (int i = 0; i < ButtonsVector.size(); i++)   //ќтображение  нопок
 		{
 			ButtonsVector[i]->Render(render);
 		}
-		SDL_RenderPresent(render);
+		SDL_RenderPresent(render);   //ѕоказать рендера
 
-		tooz = 0; //количество тузов
+		tooz = 0; 
 		Dcoins = 0;
 		for (int i = 0; i < DealerCardsVector.size(); i++) // подсчет очков дилера
 		{
@@ -679,13 +743,13 @@ int main(int argc, char* argv[])
 				tooz++;
 			Dcoins += DealerCardsVector[i]->value;
 		}
-		for (int i = 0; i < tooz; i++)
+		for (int i = 0; i < tooz; i++) // здесь идет выбор сколько очков дает туз: 1 или 11
 		{
 			if (Dcoins > 21)
 				Dcoins -= 10;
 		}
 
-		tooz = 0; //количество тузов
+		tooz = 0; 
 		Plcoins = 0;
 		for (int i = 0; i < PlayerCardsVector.size(); i++) // подсчет очков игрока
 		{
@@ -693,14 +757,14 @@ int main(int argc, char* argv[])
 				tooz++;
 			Plcoins += PlayerCardsVector[i]->value;
 		}
-		for (int i = 0; i < tooz; i++)
+		for (int i = 0; i < tooz; i++) // здесь идет выбор сколько очков дает туз: 1 или 11
 		{
 			if (Plcoins > 21)
 				Plcoins -= 10;
 		}
 		
 
-		if (Plcoins > 21 && PlayerCardsEnd())
+		if (Plcoins > 21 && PlayerCardsEnd()) 
 		{
 			SDL_ShowSimpleMessageBox(NULL, "Result", "DEALER WINS\nYOU>21", window);
 			NewGame();
@@ -708,7 +772,7 @@ int main(int argc, char* argv[])
 		}
 
 		if (DealerActive)
-		if (DealerCardsEnd() && Dcoins < 22 && Dcoins < Plcoins)
+		if (DealerCardsEnd() && Dcoins < 21 && Dcoins < Plcoins)
 		{
 			GiveCard("Dealer", true);
 		}
@@ -732,19 +796,11 @@ int main(int argc, char* argv[])
 				continue;
 			}
 		}
-
-		
-
-		//SDL_RenderCopy(render, TexAllCard, NULL, NULL);
-
-		
 		SDL_Delay(10);
 	}
 	
 	
+	QuitGame();
 	
-	SDL_DestroyRenderer(render);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
 	return 0;
 }
